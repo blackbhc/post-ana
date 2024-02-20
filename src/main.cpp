@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+using std::vector;
+
 int main( int argc, char* argv[] )
 {
     if ( argc != 3 )
@@ -24,20 +26,39 @@ int main( int argc, char* argv[] )
     vector< double* > masses;
     io->read_datasets( partNums, coordinates, masses );
 
+    printf( "Number of particles: \n" );
     for ( auto i : partNums )
     {
-        printf( "%d\n", i );
+        printf( "%d ", i );
     }
+    printf( "\n" );
 
     printf( "Calculating the rotation curve ...\n" );
     post_ana::galaxy* galaxy = new post_ana::galaxy( coordinates, masses, partNums );
-    galaxy->cal_rc( 0.1, 10.0, 10, 4 );
+    galaxy->cal_rc( 0.1, 16.0, 4, 4 );
+    auto rs = galaxy->get_rs();
+    auto rv = galaxy->get_rv();
+    printf( "Rotation curve: \n" );
+    for ( int i = 0; i < ( int )rs.size(); ++i )
+    {
+        printf( "%f ", rs[ i ] );
+    }
+    printf( "\n" );
+    for ( int i = 0; i < ( int )rv.size(); ++i )
+    {
+        printf( "Component %d: \n", i );
+        for ( int j = 0; j < ( int )rv[ i ].size(); ++j )
+        {
+            printf( "%f ", rv[ i ][ j ] );
+        }
+        printf( "\n" );
+    }
 
 
     printf( "Log into the file: %s\n", argv[ 2 ] );
-
     delete io;
-    for ( int i = 0; i < ( int )partNums.size(); i++ )
+
+    for ( int i = 0; i < ( int )partNums.size(); ++i )
     {
         delete[] coordinates[ i ];
         delete[] masses[ i ];

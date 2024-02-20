@@ -45,7 +45,7 @@ void galaxy::ensure_aligned()
     this->aligned = true;
 }
 
-void galaxy::cal_rv( double r_min, double r_max, int rBin, int phiBin )
+void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
 {
     static bool first_call = true;
     this->ensure_aligned();
@@ -55,15 +55,16 @@ void galaxy::cal_rv( double r_min, double r_max, int rBin, int phiBin )
         // allocate memory for the velocity curve at the first call
         for ( int i = 0; i < this->compNum; ++i )
         {
-            this->rv.push_back( new double[ rBin * phiBin ] );
-            std::memset( this->rv[ i ], 0, rBin * phiBin * sizeof( double ) );
-            this->binSize = { rBin, phiBin };
+            this->rv.push_back( new double[ ( rBin + 1 ) * phiBin ] );
+            std::memset( this->rv[ i ], 0, ( rBin + 1 ) * phiBin * sizeof( double ) );
+            this->binSize = { rBin + 1, phiBin };
         }
         first_call = false;
     }
 
-    double logr_bin_size = std::log10( r_max / r_min ) / rBin;
+    double logr_bin_size = std::log10( rMax / rMin ) / rBin;
     double phi_bin_size  = 2 * M_PI / phiBin;
+    double lgRMin        = std::log10( rMin );
 
     double pos[ 3 ]   = { 0, 0, 0 };  // temporary position
     double force[ 3 ] = { 0, 0, 0 };  // temporary force
@@ -73,14 +74,14 @@ void galaxy::cal_rv( double r_min, double r_max, int rBin, int phiBin )
     };
 
     for ( int k = 0; k < this->compNum; ++k )
-        for ( int i = 0; i < rBin; ++i )
+        for ( int i = 0; i < rBin + 1; ++i )
         {
             for ( int j = 0; j < phiBin; ++j )
             {
                 pos[ 0 ] =
-                    ( r_min + std::pow( 10, i * logr_bin_size ) ) * std::cos( j * phi_bin_size );
+                    std::pow( 10, lgRMin + i * logr_bin_size ) * std::cos( j * phi_bin_size );
                 pos[ 1 ] =
-                    ( r_min + std::pow( 10, i * logr_bin_size ) ) * std::sin( j * phi_bin_size );
+                    std::pow( 10, lgRMin + i * logr_bin_size ) * std::sin( j * phi_bin_size );
                 pos[ 2 ] = 0;
                 this->gravity[ k ]->force( pos, force );
                 this->rv[ k ][ i * phiBin + j ] = std::sqrt( norm( force ) * norm( pos ) );
@@ -88,7 +89,7 @@ void galaxy::cal_rv( double r_min, double r_max, int rBin, int phiBin )
         }
 }
 
-void galaxy::cal_rc( double r_min, double r_max, int rBin, int phiBin )
+void galaxy::cal_rc( double rMin, double rMax, int rBin, int phiBin )
 {
     static bool first_call = true;
     if ( first_call )
@@ -96,18 +97,19 @@ void galaxy::cal_rc( double r_min, double r_max, int rBin, int phiBin )
         // allocate memory for the velocity curve at the first call
         for ( int i = 0; i < this->compNum; ++i )
         {
-            this->rc.push_back( new double[ rBin ] );
-            std::memset( this->rc[ i ], 0, rBin * sizeof( double ) );
+            this->rc.push_back( new double[ rBin + 1 ] );
+            std::memset( this->rc[ i ], 0, ( rBin + 1 ) * sizeof( double ) );
         }
-        this->rs             = new double[ rBin ];
-        double logr_bin_size = std::log10( r_max / r_min ) / rBin;
-        for ( int i = 0; i < rBin; ++i )
-            this->rs[ i ] = r_min + std::pow( 10, i * logr_bin_size );
+        this->rs             = new double[ rBin + 1 ];
+        double logr_bin_size = std::log10( rMax / rMin ) / rBin;
+        double lgRMin        = std::log10( rMin );
+        for ( int i = 0; i < rBin + 1; ++i )
+            this->rs[ i ] = std::pow( 10, lgRMin + i * logr_bin_size );
 
         this->has_rc = true;
     }
 
-    this->cal_rv( r_min, r_max, rBin, phiBin );
+    this->cal_rv( rMin, rMax, rBin, phiBin );
 
     // RC: average of velocity w.r.t. phi
     for ( int k = 0; k < this->compNum; ++k )

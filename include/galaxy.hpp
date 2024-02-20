@@ -15,10 +15,34 @@ public:
     // in general.
     ~galaxy();
     // APIs for the analysis
-    void cal_rc( double r_min, double r_max, int rBin,
-                 int phiBin );  // calculate the rotation curve
-    void cal_rv( double r_min, double r_max, int rBin,
-                 int phiBin );  // calculate the rotation curve
+    void                    cal_rc( double r_min, double r_max, int rBin,
+                                    int phiBin );  // calculate the rotation curve
+    void                    cal_rv( double r_min, double r_max, int rBin,
+                                    int phiBin );  // calculate the rotation curve
+    inline vector< double > get_rs()
+    {
+        vector< double > Rs;
+        for ( int i = 0; i < this->binSize[ 0 ]; ++i )
+        {
+            Rs.push_back( this->rs[ i ] );
+        }
+        return Rs;
+    }
+
+    inline vector< vector< double > > get_rv()
+    {
+        vector< vector< double > > RVs;
+        for ( int i = 0; i < this->compNum; ++i )
+        {
+            vector< double > rv;
+            for ( int j = 0; j < this->binSize[ 0 ] * this->binSize[ 1 ]; ++j )
+            {
+                rv.push_back( this->rv[ i ][ j ] );
+            }
+            RVs.push_back( rv );
+        }
+        return RVs;
+    }
 
 private:
     vector< int >                disk_ids;

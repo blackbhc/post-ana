@@ -42,16 +42,18 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     hid_t attr_id = H5Aopen( header, "NumPart_ThisFile", H5P_DEFAULT );
     H5Aread( attr_id, H5T_NATIVE_INT, &partNums[ 0 ] );
 
-    int types = 0;  // the number of particle types
+    int           types = 0;  // the number of effective particle types
+    vector< int > effectivePartNums;
     for ( int i = 0; i < 50; i++ )
     {
         if ( partNums[ i ] > 0 )
         {
-            types++;
+            effectivePartNums.push_back( partNums[ i ] );
         }
     }
+    types = ( int )effectivePartNums.size();
 
-    if ( partNums[ 0 ] == 0 )
+    if ( partNums[ 0 ] == 0 )  // if there is no gas component, add an offset for PartTypes
         offset = 1;
 
     // resize the vectors
@@ -59,6 +61,10 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     coordinates.resize( types );
     masses.resize( types );
 
+    for ( int i = 0; i < types; i++ )
+    {
+        partNums[ i ] = effectivePartNums[ i ];
+    }
 
     // read the coordinates and masses
     for ( int i = 0; i < types; i++ )
