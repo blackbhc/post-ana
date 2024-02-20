@@ -1,4 +1,5 @@
 // main function to produce the executable
+#include <hdf5.h>
 #include <iostream>
 #include <vector>
 using std::cout;

@@ -6,3 +6,4 @@
 
 ## Features
 - [ ] Rotation curves: support total and partial rotation curves (rotation curve of particular components).
+- [ ] Disk mass fraction: $f_{disk}\equiv(\frac{V_{C,disk}}{V_{C,total}})^2$

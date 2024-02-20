@@ -1,22 +1,38 @@
 import os
 
-srcs = ["src/" + file for file in ["main.cpp", "derivatives.cpp", "gravity.cpp"]]
+CPATH = os.environ["CPATH"].split(":")
+LD_LIB_PATH = os.environ["LD_LIBRARY_PATH"].split(":")
+LIB_PATH = os.environ["LIBRARY_PATH"].split(":")
+
+srcs = [
+    "src/" + file
+    for file in [
+        "main.cpp",
+        "derivatives.cpp",
+        "gravity.cpp",
+        "galaxy.cpp",
+        "h5_io.cpp",
+    ]
+]
 
 flags = ["-std=c++20", "-O3", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-fPIC"]
 
+print("CPATH:", os.environ["CPATH"])
+
 Program(
     target="bin/rc",
-    source="src/main.cpp",
-    LIBS=["gsl", "gslcblas", "postana"],
-    LIBPATH="./lib",
-    CPPPATH="./src",
+    source=srcs[0],
+    LIBS=["gsl", "gslcblas", "postana", "hdf5"],
+    LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
+    CPPPATH=["./src"] + CPATH,
     CXXFLAGS=flags,
 )
 
 SharedLibrary(
     target="lib/libpostana.so",
-    source=["src/gravity.cpp", "src/derivatives.cpp", "src/aligner.cpp"],
-    LIBS=["gsl", "gslcblas"],
-    CPPPATH="./src",
+    source=srcs[1:],
+    LIBS=["gsl", "gslcblas", "hdf5"],
+    LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
+    CPPPATH=["./src"] + CPATH,
     CXXFLAGS=flags,
 )
