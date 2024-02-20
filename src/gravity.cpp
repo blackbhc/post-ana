@@ -34,8 +34,9 @@ void gravity::force( double* pos, double* force )
         r = this->distance( pos, this->coordinates + 3 * i );
         for ( int j = 0; j < 3; ++j )
         {
-            force[ j ] += G * this->masses[ i ] * ( this->coordinates[ 3 * i + j ] - pos[ j ] )
-                          / ( r * r * r );
+            force[ j ] += G * 1e10 * this->masses[ i ]
+                          * ( this->coordinates[ 3 * i + j ] - pos[ j ] ) / ( r * r * r );
+            // 1e10: convert the mass unit from 1e10 Msun to 1 Msun
         }
     }
 }

@@ -5,7 +5,6 @@
 namespace post_ana {
 galaxy::galaxy( vector< double* > coordinates, vector< double* > masses, vector< int > partNums )
 {
-    // TODO: read the data from the file
     this->compNum = ( int )coordinates.size();
 
     for ( int i = 0; i < this->compNum; ++i )
@@ -68,9 +67,9 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
 
     double pos[ 3 ]   = { 0, 0, 0 };  // temporary position
     double force[ 3 ] = { 0, 0, 0 };  // temporary force
-    // norm of vector
-    auto norm = []( double* vec ) -> double {
-        return std::sqrt( vec[ 0 ] * vec[ 0 ] + vec[ 1 ] * vec[ 1 ] + vec[ 2 ] * vec[ 2 ] );
+    // inner product of vector
+    auto inner = []( double* vec1, double* vec2 ) -> double {
+        return vec1[ 0 ] * vec2[ 0 ] + vec1[ 1 ] * vec2[ 1 ] + vec1[ 2 ] * vec2[ 2 ];
     };
 
     for ( int k = 0; k < this->compNum; ++k )
@@ -84,7 +83,7 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
                     std::pow( 10, lgRMin + i * logr_bin_size ) * std::sin( j * phi_bin_size );
                 pos[ 2 ] = 0;
                 this->gravity[ k ]->force( pos, force );
-                this->rv[ k ][ i * phiBin + j ] = std::sqrt( norm( force ) * norm( pos ) );
+                this->rv[ k ][ i * phiBin + j ] = std::sqrt( -inner( force, pos ) );
             }
         }
 }

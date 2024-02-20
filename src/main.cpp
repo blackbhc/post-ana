@@ -31,7 +31,7 @@ int main( int argc, char* argv[] )
     vector< double* > masses;
     io->read_datasets( partNums, coordinates, masses );
 
-    printf( "Number of particles: \n" );
+    printf( "Number of particles: " );
     for ( auto i : partNums )
     {
         printf( "%d ", i );
@@ -40,7 +40,7 @@ int main( int argc, char* argv[] )
 
     printf( "Calculating the rotation curve ...\n" );
     post_ana::galaxy* galaxy = new post_ana::galaxy( coordinates, masses, partNums );
-    galaxy->cal_rc( 0.1, 16.0, 4, 4 );
+    galaxy->cal_rc( 0.1, 30, 30, 16 );
     auto rs  = galaxy->get_rs();
     auto rvs = galaxy->get_rvs();
     printf( "Logging into the file: %s ...\n", argv[ 2 ] );

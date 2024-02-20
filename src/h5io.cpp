@@ -104,7 +104,7 @@ void h5io::write_results( vector< double >& rs, vector< vector< double > >& rvs 
     H5Dclose( rSet );
 
     hid_t rvGroup =
-        H5Gcreate( this->anaResFile, "Rotation Velocity", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+        H5Gcreate( this->anaResFile, "RV Square", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
 
     for ( int i = 0; i < ( int )rvs.size(); ++i )  // for each component
     {
