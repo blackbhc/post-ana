@@ -3,7 +3,7 @@
 INSTALL_DIR = ~/.local/
 
 all: bin
-	@scons
+	@scons -Q
 
 lib:
 	@mkdir -p lib
@@ -15,7 +15,7 @@ test:
 	@cd bin && ./rc
 
 clean:
-	@scons -c
+	@scons -c -Q
 	@rm -rf bin/ lib/ .sconsign.dblite
 
 install: all
