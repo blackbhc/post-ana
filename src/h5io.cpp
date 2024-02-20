@@ -1,4 +1,5 @@
 #include "../include/h5io.hpp"
+#include "H5public.h"
 #include <iostream>
 #include <string>
 using std::string;
@@ -13,10 +14,6 @@ h5io::h5io( std::string simFile, std::string anaResFile )
 
 h5io::~h5io()
 {
-    // H5Dclose( this->rc_id );
-    // H5Dclose( this->rs_id );
-    // H5Sclose( this->rc_space_id );
-    // H5Sclose( this->rs_space_id );
     H5Fclose( this->simFile );
     H5Fclose( this->anaResFile );
 }
@@ -32,7 +29,6 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     }
 
     partNums.resize( 50 );  // 50 is large enough for the number of particles
-    int offset = 0;         // the offset of the particle type, if there is 0 number gas component
     for ( int i = 0; i < 50; i++ )
     {
         partNums[ i ] = -1;
@@ -54,7 +50,7 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     types = ( int )effectivePartNums.size();
 
     if ( partNums[ 0 ] == 0 )  // if there is no gas component, add an offset for PartTypes
-        offset = 1;
+        this->parttype_offset = 1;
 
     // resize the vectors
     partNums.resize( types );
@@ -69,7 +65,7 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     // read the coordinates and masses
     for ( int i = 0; i < types; i++ )
     {
-        string  partTypeName = "PartType" + std::to_string( i + offset );
+        string  partTypeName = "PartType" + std::to_string( i + this->parttype_offset );
         hid_t   component    = H5Gopen( this->simFile, partTypeName.c_str(), H5P_DEFAULT );
         hid_t   coordSet     = H5Dopen( component, "Coordinates", H5P_DEFAULT );
         hid_t   massSet      = H5Dopen( component, "Masses", H5P_DEFAULT );
@@ -92,20 +88,34 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     H5Gclose( header );
 }
 
-void h5io::create_datasets()
+void h5io::write_results( vector< double >& rs, vector< vector< double > >& rvs )
 {
     // create the datasets in the analysis result file
     // Datasets: RC, RS with the same size, 1D array
-    hsize_t dims[ 1 ] = { 1 };
-    hid_t   rc_space  = H5Screate_simple( 1, dims, NULL );
-    hid_t   rs_space  = H5Screate_simple( 1, dims, NULL );
-    hid_t rc_set = H5Dcreate( this->anaResFile, "Rotation Velocities", H5T_NATIVE_DOUBLE, rc_space,
-                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
-    hid_t rs_set = H5Dcreate( this->anaResFile, "Radiuses", H5T_NATIVE_DOUBLE, rs_space,
-                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
-    this->rc_id  = rc_set;
-    this->rs_id  = rs_set;
-    this->rc_space_id = rc_space;
-    this->rs_space_id = rs_space;
+    int     rBin         = ( int )rs.size();
+    int     phiBin       = ( int )rvs[ 0 ].size() / rBin;
+    hsize_t dims_1d[ 1 ] = { ( hsize_t )rBin };
+    hsize_t dims_2d[ 2 ] = { ( hsize_t )rBin, ( hsize_t )phiBin };
+    hid_t   rSet =
+        H5Dcreate( this->anaResFile, "Radius", H5T_NATIVE_DOUBLE,
+                   H5Screate_simple( 1, dims_1d, NULL ), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+
+    H5Dwrite( rSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, rs.data() );
+    H5Dclose( rSet );
+
+    hid_t rvGroup =
+        H5Gcreate( this->anaResFile, "Rotation Velocity", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+
+    for ( int i = 0; i < ( int )rvs.size(); ++i )  // for each component
+    {
+        string datasetName = "PartType" + std::to_string( i + this->parttype_offset );
+        hid_t  vSet        = H5Dcreate( rvGroup, datasetName.c_str(), H5T_NATIVE_DOUBLE,
+                                        H5Screate_simple( 2, dims_2d, NULL ), H5P_DEFAULT, H5P_DEFAULT,
+                                        H5P_DEFAULT );
+        H5Dwrite( vSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, rvs[ i ].data() );
+        H5Dclose( vSet );
+    }
+
+    H5Gclose( rvGroup );
 }
 }  // namespace post_ana

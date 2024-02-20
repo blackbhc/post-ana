@@ -16,7 +16,16 @@ srcs = [
     ]
 ]
 
-flags = ["-std=c++20", "-O3", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-fPIC"]
+flags = [
+    "-std=c++20",
+    # "-ggdb",
+    "-O3",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-fPIC",
+]
 
 print("CPATH:", os.environ["CPATH"])
 

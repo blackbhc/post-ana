@@ -20,7 +20,12 @@ int main( int argc, char* argv[] )
     }
 
     printf( "Reading simulation data from the file: %s\n", argv[ 1 ] );
-    post_ana::h5io*   io = new post_ana::h5io( argv[ 1 ], argv[ 2 ] );
+    // ( void )argc;
+    // ( void )argv;
+    // post_ana::h5io* io = new post_ana::h5io(
+    //     "/home/bhchen/FeGradient/Simulation/hr_sigma150/snapshot_000.hdf5", "./test/test.hdf5" );
+    post_ana::h5io* io = new post_ana::h5io( argv[ 1 ], argv[ 2 ] );
+
     vector< int >     partNums;
     vector< double* > coordinates;
     vector< double* > masses;
@@ -36,27 +41,12 @@ int main( int argc, char* argv[] )
     printf( "Calculating the rotation curve ...\n" );
     post_ana::galaxy* galaxy = new post_ana::galaxy( coordinates, masses, partNums );
     galaxy->cal_rc( 0.1, 16.0, 4, 4 );
-    auto rs = galaxy->get_rs();
-    auto rv = galaxy->get_rv();
-    printf( "Rotation curve: \n" );
-    for ( int i = 0; i < ( int )rs.size(); ++i )
-    {
-        printf( "%f ", rs[ i ] );
-    }
-    printf( "\n" );
-    for ( int i = 0; i < ( int )rv.size(); ++i )
-    {
-        printf( "Component %d: \n", i );
-        for ( int j = 0; j < ( int )rv[ i ].size(); ++j )
-        {
-            printf( "%f ", rv[ i ][ j ] );
-        }
-        printf( "\n" );
-    }
-
-
-    printf( "Log into the file: %s\n", argv[ 2 ] );
+    auto rs  = galaxy->get_rs();
+    auto rvs = galaxy->get_rvs();
+    printf( "Logging into the file: %s ...\n", argv[ 2 ] );
+    io->write_results( rs, rvs );
     delete io;
+    printf( "Done.\n" );
 
     for ( int i = 0; i < ( int )partNums.size(); ++i )
     {

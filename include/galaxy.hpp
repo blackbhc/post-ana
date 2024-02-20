@@ -4,6 +4,9 @@
 #include "derivatives.hpp"
 #include "gravity.hpp"
 #include <vector>
+
+#define V_FACTOR 0.97779222  // the factor to convert the velocity unit from kpc/Gyr to km/s
+
 using std::vector;
 namespace post_ana {
 
@@ -29,7 +32,7 @@ public:
         return Rs;
     }
 
-    inline vector< vector< double > > get_rv()
+    inline vector< vector< double > > get_rvs()
     {
         vector< vector< double > > RVs;
         for ( int i = 0; i < this->compNum; ++i )
@@ -37,7 +40,7 @@ public:
             vector< double > rv;
             for ( int j = 0; j < this->binSize[ 0 ] * this->binSize[ 1 ]; ++j )
             {
-                rv.push_back( this->rv[ i ][ j ] );
+                rv.push_back( this->rv[ i ][ j ] * V_FACTOR );
             }
             RVs.push_back( rv );
         }

@@ -14,12 +14,11 @@ public:
     ~h5io();
     void read_datasets( vector< int >& partNums, vector< double* >& coordinates,
                         vector< double* >& masses );
+    void write_results( vector< double >& rs, vector< vector< double > >& rv );
 
 private:
-    void  create_datasets();
-    hid_t simFile = -1, anaResFile = -1;       // file id: simulation file and analysis result file
-    hid_t rc_id = -1, rs_id = -1;              // dataset id: RC and RS
-    hid_t rc_space_id = -1, rs_space_id = -1;  // dataspace id: RC and RS
+    hid_t simFile = -1, anaResFile = -1;  // file id: simulation file and analysis result file
+    int parttype_offset = 0;  // the offset of the particle type, if there is 0 number gas component
 };
 
 }  // namespace post_ana
