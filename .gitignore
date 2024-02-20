@@ -1,3 +1,6 @@
 bin
 test
 lib
+src/*.o
+src/*.os
+.sconsign.dblite
