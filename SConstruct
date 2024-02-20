@@ -11,7 +11,8 @@ srcs = [
         "derivatives.cpp",
         "gravity.cpp",
         "galaxy.cpp",
-        "h5_io.cpp",
+        "h5io.cpp",
+        "aligner.cpp",
     ]
 ]
 
@@ -21,7 +22,7 @@ print("CPATH:", os.environ["CPATH"])
 
 Program(
     target="bin/rc",
-    source=srcs[0],
+    source=srcs,
     LIBS=["gsl", "gslcblas", "postana", "hdf5"],
     LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
     CPPPATH=["./src"] + CPATH,

@@ -1,26 +1,23 @@
 #include "../include/galaxy.hpp"
+#include "../include/aligner.hpp"
 #include <algorithm>
 #include <cstring>
 namespace post_ana {
-galaxy::galaxy( std::string& filename, std::vector< int > disk_ids )
+galaxy::galaxy( vector< double* > coordinates, vector< double* > masses, vector< int > partNums )
 {
     // TODO: read the data from the file
-    ( void )filename;
-    this->compNum = 1;
+    this->compNum = ( int )coordinates.size();
+
     for ( int i = 0; i < this->compNum; ++i )
     {
-        int     comp_part_num = 100;
-        double* comp_coord    = new double[ comp_part_num * 3 ];
-        double* comp_mass     = new double[ comp_part_num ];
-        // TODO: read the data from the file
+        int                comp_part_num = partNums[ i ];
         post_ana::gravity* comp_grav =
-            new post_ana::gravity( comp_coord, comp_mass, comp_part_num );
-        this->coordinates.push_back( comp_coord );
-        this->masses.push_back( comp_mass );
+            new post_ana::gravity( coordinates[ i ], masses[ i ], comp_part_num );
+        this->coordinates.push_back( coordinates[ i ] );
+        this->masses.push_back( masses[ i ] );
         this->gravity.push_back( comp_grav );
         this->partNum.push_back( comp_part_num );
     }
-    this->disk_ids = disk_ids;
 }
 
 galaxy::~galaxy()
@@ -28,8 +25,6 @@ galaxy::~galaxy()
     for ( int i = 0; i < this->compNum; ++i )
     {
         delete this->gravity[ i ];
-        delete[] this->coordinates[ i ];
-        delete[] this->masses[ i ];
         delete[] this->rv[ i ];
         delete[] this->rc[ i ];
     }
@@ -125,50 +120,6 @@ void galaxy::cal_rc( double r_min, double r_max, int rBin, int phiBin )
             }
             this->rc[ k ][ i ] = sum / phiBin;  // average the velocity w.r.t. phi
         }
-}
-
-double galaxy::cal_fdisk( double Rd )
-{
-    double Rc = 2.2 * Rd;
-    if ( !this->has_rc )  // make sure the rotation curve is calculated
-    {
-        throw std::runtime_error( "Rotation curve is not calculated yet, call cal_rc first before "
-                                  "calculating the disk mass fraction" );
-    }
-
-    // check whether Rc is in the range of the rotation curve
-    if ( Rc < this->rs[ 0 ] || Rc > this->rs[ this->binSize[ 0 ] - 1 ] )
-    {
-        throw std::runtime_error( "2.2*Rd is out of the range of the rotation curve" );
-    }
-
-    // find the left bin of Rc for interpolation
-    int left_loc = 0;
-    for ( left_loc = 0; left_loc < this->binSize[ 0 ]; ++left_loc )
-    {
-        if ( this->rs[ left_loc + 1 ] > Rc )
-            break;
-    }
-    double delta_r = Rc - this->rs[ left_loc ];  // the delta r between Rc and the left bin
-    double interpolate_rc;
-
-    double sum      = 0;
-    double disk_sum = 0;
-    for ( int k = 0; k < this->compNum; ++k )
-    {
-        interpolate_rc = this->rc[ k ][ left_loc ]
-                         + ( this->rc[ k ][ left_loc + 1 ] - this->rc[ k ][ left_loc ] ) * delta_r
-                               / ( this->rs[ left_loc + 1 ] - this->rs[ left_loc ] );
-        sum += interpolate_rc * interpolate_rc;
-
-        // if the component is a disk
-        if ( std::find( this->disk_ids.begin(), this->disk_ids.end(), k ) != this->disk_ids.end() )
-        {
-            disk_sum += interpolate_rc * interpolate_rc;
-        }
-    }
-
-    return disk_sum / sum;
 }
 
 }  // namespace post_ana

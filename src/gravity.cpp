@@ -4,6 +4,12 @@
 namespace post_ana {
 gravity::gravity( double* coordinates, double* masses, int particleNumber )
 {
+    if ( particleNumber < 1 )
+    {
+        std::cerr << "Error: particle number must be greater than 0, get " << particleNumber
+                  << std::endl;
+        exit( 1 );
+    }
     this->coordinates    = coordinates;
     this->masses         = masses;
     this->particleNumber = particleNumber;
