@@ -1,18 +1,21 @@
-# This library provide some programs and dynamic library to post analyze the galactic simulation data.
+This library provide some programs and dynamic library to post analyze the galactic simulation data.
 The main concentration of this library is the disk galaxy simulations.
+
+---
+# Documentation
 
 ## Dependencies
 - `python` and `scons` for building: if you haven't installed `scons`, you can install it by `pip install scons`
   or `conda install scons`.
 - `make`
-- a `C++` compiler for compiling: support C++20 or later, such as `g++` or `clang++`.
+- a `C++` compiler for compiling: support C++11 or later, such as `g++` or `clang++`.
 - `gsl` library for numerical calculation.
 - `hdf5` library for reading and writing HDF5 files.
 
 ## Features
 - [x] Rotation curves: support total and partial rotation curves (rotation curve of particular components).
 - [x] CLI based parameters.
-- [ ] Parallel calculation to speed up the process.
+- [ ] Parallel calculation (threading) to speed up the process.
 
 ## Installation
 1. Clone the repository into your local directory: `git clone https://github.com/blackbhc/post-ana.git`

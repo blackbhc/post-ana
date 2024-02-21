@@ -2,7 +2,12 @@
 #include "../include/aligner.hpp"
 #include <algorithm>
 #include <cstring>
+#include <thread>
+
+using std::vector;
+
 namespace post_ana {
+
 galaxy::galaxy( vector< double* > coordinates, vector< double* > masses, vector< int > partNums )
 {
     this->compNum = ( int )coordinates.size();
@@ -65,27 +70,55 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
     double phi_bin_size  = 2 * M_PI / phiBin;
     double lgRMin        = std::log10( rMin );
 
-    double pos[ 3 ]   = { 0, 0, 0 };  // temporary position
-    double force[ 3 ] = { 0, 0, 0 };  // temporary force
     // inner product of vector
     auto inner = []( double* vec1, double* vec2 ) -> double {
         return vec1[ 0 ] * vec2[ 0 ] + vec1[ 1 ] * vec2[ 1 ] + vec1[ 2 ] * vec2[ 2 ];
     };
 
-    for ( int k = 0; k < this->compNum; ++k )
+    int n_thread = std::thread::hardware_concurrency() / 8;  // the number of threads
+    n_thread     = n_thread >= 8 ? n_thread : 8;             // at least 8 threads
+
+    // calculate the circular velocity at each position
+    double force[ 3 ] = { 0, 0, 0 };  // temporary force
+    // 1. calculate the positions
+    double* locs     = new double[ this->compNum * ( rBin + 1 ) * phiBin * 3 ];
+    int     sub_dim1 = phiBin * 3;
+    int     sub_dim2 = ( rBin + 1 ) * phiBin * 3;
+    for ( int comp = 0; comp < this->compNum; ++comp )
         for ( int i = 0; i < rBin + 1; ++i )
-        {
             for ( int j = 0; j < phiBin; ++j )
             {
-                pos[ 0 ] =
+                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 ] =
                     std::pow( 10, lgRMin + i * logr_bin_size ) * std::cos( j * phi_bin_size );
-                pos[ 1 ] =
+                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 + 1 ] =
                     std::pow( 10, lgRMin + i * logr_bin_size ) * std::sin( j * phi_bin_size );
-                pos[ 2 ] = 0;
-                this->gravity[ k ]->force( pos, force );
-                this->rv[ k ][ i * phiBin + j ] = std::sqrt( -inner( force, pos ) );
+                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 + 2 ] = 0;
             }
+    // 2. calculator of rv for per component, per thread
+    auto rv_thread = [ this, locs, &force, &inner, &rBin, &phiBin, &sub_dim1, &sub_dim2,
+                       &n_thread ]( int comp, int start ) {
+        for ( int i = start; i < ( rBin + 1 ) * phiBin; i += n_thread )
+        {
+            int row = i / phiBin;
+            int col = i % phiBin;
+            this->gravity[ comp ]->force( locs + comp * sub_dim2 + row * sub_dim1 + col * 3,
+                                          force );
+            this->rv[ comp ][ i ] =
+                std::sqrt( -inner( force, locs + comp * sub_dim2 + row * sub_dim1 + col * 3 ) );
         }
+    };
+    // 3. multi-threading for each component
+    for ( int comp = 0; comp < this->compNum; ++comp )
+    {
+        vector< std::thread > threads;
+        for ( int i = 0; i < n_thread; ++i )
+            threads.push_back( std::thread( rv_thread, comp, i ) );
+
+        for ( int i = 0; i < n_thread; ++i )
+            threads[ i ].join();
+    }
+
+    delete[] locs;
 }
 
 void galaxy::cal_rc( double rMin, double rMax, int rBin, int phiBin )

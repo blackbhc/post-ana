@@ -17,7 +17,7 @@ srcs = [
 ]
 
 flags = [
-    "-std=c++20",
+    "-std=c++11",
     # "-ggdb",
     "-O3",
     "-Wall",
