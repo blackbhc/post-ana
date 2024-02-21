@@ -20,6 +20,7 @@ The main concentration of this library is the disk galaxy simulations.
 - [x] CLI based parameters.
 - [x] Parallel calculation (threading) to speed up the process.
 - [x] Python wrapper for the library.
+- [ ] Jupyter support.
 - [ ] Multiple snapshots.
 
 ## Installation
