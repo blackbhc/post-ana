@@ -66,10 +66,6 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
         first_call = false;
     }
 
-    double logr_bin_size = std::log10( rMax / rMin ) / rBin;
-    double phi_bin_size  = 2 * M_PI / phiBin;
-    double lgRMin        = std::log10( rMin );
-
     // inner product of vector
     auto inner = []( double* vec1, double* vec2 ) -> double {
         return vec1[ 0 ] * vec2[ 0 ] + vec1[ 1 ] * vec2[ 1 ] + vec1[ 2 ] * vec2[ 2 ];
@@ -78,36 +74,32 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
     int n_thread = std::thread::hardware_concurrency() / 8;  // the number of threads
     n_thread     = n_thread >= 8 ? n_thread : 8;             // at least 8 threads
 
-    // calculate the circular velocity at each position
-    double force[ 3 ] = { 0, 0, 0 };  // temporary force
-    // 1. calculate the positions
-    double* locs     = new double[ this->compNum * ( rBin + 1 ) * phiBin * 3 ];
-    int     sub_dim1 = phiBin * 3;
-    int     sub_dim2 = ( rBin + 1 ) * phiBin * 3;
-    for ( int comp = 0; comp < this->compNum; ++comp )
-        for ( int i = 0; i < rBin + 1; ++i )
-            for ( int j = 0; j < phiBin; ++j )
-            {
-                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 ] =
-                    std::pow( 10, lgRMin + i * logr_bin_size ) * std::cos( j * phi_bin_size );
-                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 + 1 ] =
-                    std::pow( 10, lgRMin + i * logr_bin_size ) * std::sin( j * phi_bin_size );
-                locs[ comp * sub_dim2 + i * sub_dim1 + j * 3 + 2 ] = 0;
-            }
-    // 2. calculator of rv for per component, per thread
-    auto rv_thread = [ this, locs, &force, &inner, &rBin, &phiBin, &sub_dim1, &sub_dim2,
-                       &n_thread ]( int comp, int start ) {
+    // calculate the bin size
+    double lgRBinSize = std::log10( rMax / rMin ) / rBin;
+    double phiBinSize = 2 * M_PI / phiBin;
+    double lgRMin     = std::log10( rMin );
+    // define the thread function
+    auto rv_thread = [ this, &inner, &rBin, &phiBin, &n_thread, &lgRBinSize, &lgRMin,
+                       &phiBinSize ]( int comp, int start ) {
+        // temporary position and force
+        double pos[ 3 ]   = { 0, 0, 0 };
+        double force[ 3 ] = { 0, 0, 0 };
+        // temporary radius
+        double r = 0;
         for ( int i = start; i < ( rBin + 1 ) * phiBin; i += n_thread )
         {
-            int row = i / phiBin;
-            int col = i % phiBin;
-            this->gravity[ comp ]->force( locs + comp * sub_dim2 + row * sub_dim1 + col * 3,
-                                          force );
-            this->rv[ comp ][ i ] =
-                std::sqrt( -inner( force, locs + comp * sub_dim2 + row * sub_dim1 + col * 3 ) );
+            int indexR   = i / phiBin;
+            int indexPhi = i % phiBin;
+            r            = std::pow( 10, lgRMin + indexR * lgRBinSize );
+            // calculate the position
+            pos[ 0 ] = r * std::cos( indexPhi * phiBinSize );
+            pos[ 1 ] = r * std::sin( indexPhi * phiBinSize );
+            // calculate the force
+            this->gravity[ comp ]->force( pos, force );
+            this->rv[ comp ][ i ] = std::sqrt( -inner( force, pos ) );
         }
     };
-    // 3. multi-threading for each component
+    // multi-threading for each component
     for ( int comp = 0; comp < this->compNum; ++comp )
     {
         vector< std::thread > threads;
@@ -117,8 +109,6 @@ void galaxy::cal_rv( double rMin, double rMax, int rBin, int phiBin )
         for ( int i = 0; i < n_thread; ++i )
             threads[ i ].join();
     }
-
-    delete[] locs;
 }
 
 void galaxy::cal_rc( double rMin, double rMax, int rBin, int phiBin )
@@ -132,11 +122,11 @@ void galaxy::cal_rc( double rMin, double rMax, int rBin, int phiBin )
             this->rc.push_back( new double[ rBin + 1 ] );
             std::memset( this->rc[ i ], 0, ( rBin + 1 ) * sizeof( double ) );
         }
-        this->rs             = new double[ rBin + 1 ];
-        double logr_bin_size = std::log10( rMax / rMin ) / rBin;
-        double lgRMin        = std::log10( rMin );
+        this->rs          = new double[ rBin + 1 ];
+        double lgRBinSize = std::log10( rMax / rMin ) / rBin;
+        double lgRMin     = std::log10( rMin );
         for ( int i = 0; i < rBin + 1; ++i )
-            this->rs[ i ] = std::pow( 10, lgRMin + i * logr_bin_size );
+            this->rs[ i ] = std::pow( 10, lgRMin + i * lgRBinSize );
 
         this->has_rc = true;
     }
