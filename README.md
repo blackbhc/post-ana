@@ -23,22 +23,47 @@ The main concentration of this library is the disk galaxy simulations.
 - [ ] Multiple snapshots.
 
 ## Installation
-1. Clone the repository into your local directory: `git clone https://github.com/blackbhc/post-ana.git`
-2. Change the directory to the repository: `cd post-ana`
+1. Clone the repository into your local directory:
+```bash
+git clone https://github.com/blackbhc/post-ana.git
+```
+2. Change the directory to the repository:
+```bash
+cd post-ana
+```
 3. Edit the installation path at the third line of `Makefile`, default is `~/.local`.
 4. Edit the installation path at the third line of `Makefile`, default is `~/.local`.
-5. Build the library: `make`. If you encounter any error, run `make clean` before you run `make` again.
+5. Build the library: 
+```bash
+make
+```
+If you encounter any error, run `make clean` before you run `make` again.
 (Edit the first line of `src/python.cpp`, if you encounter compiling error `Python.h not found`. The exact 
 position of `Python.h` can be found by command `python3-config --includes`.)
-6. Install the library: `make install`
+6. Install the library: 
+```bash
+make install 
+```
 
-Uninstall: `make uninstall`
+Uninstall:
+```bash
+make uninstall
+```
 
 ## Usage
-### As a program
-For calculation of rotation velocities, run `post [snapshot filename] [analysis result filename]`.
+### Configure the environment 
+Add the install path to your environment variable `PATH`: 
+```bash
+export PATH=$PATH:/path/to/install/bin
+```
 
-The snapshot file should be in HDF5 format, which follows the convention of the `Gadget` simulation IC file. 
+### As a program
+For calculation of rotation velocities, run 
+```bash
+post [snapshot filename] [analysis result filename]
+```
+
+The snapshot file should be in HDF5 format, which follows the convention of the `Gadget` simulation IC file.
 
 ### Results
 The program will generate a file with the name you specified. The file is in HDF5 format, and contains the 
@@ -77,6 +102,4 @@ plt.xlabel(r"$R$ (kpc)")
 plt.ylabel(r"$V_c$ (km/s)")
 plt.legend()
 plt.show()
-
 ```
-
