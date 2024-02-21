@@ -35,10 +35,16 @@ position of `Python.h` can be found by command `python3-config --includes`.)
 Uninstall: `make uninstall`
 
 ## Usage
+### Configure the environment 
+Add the install path to your environment variable `PATH`: 
+```bash
+export PATH=$PATH:/path/to/install/bin
+```bash
+
 ### As a program
 For calculation of rotation velocities, run `post [snapshot filename] [analysis result filename]`.
 
-The snapshot file should be in HDF5 format, which follows the convention of the `Gadget` simulation IC file. 
+The snapshot file should be in HDF5 format, which follows the convention of the `Gadget` simulation IC file.
 
 ### Results
 The program will generate a file with the name you specified. The file is in HDF5 format, and contains the 
@@ -78,5 +84,5 @@ plt.ylabel(r"$V_c$ (km/s)")
 plt.legend()
 plt.show()
 
-```
+```python
 
