@@ -39,7 +39,7 @@ Uninstall: `make uninstall`
 Add the install path to your environment variable `PATH`: 
 ```bash
 export PATH=$PATH:/path/to/install/bin
-```bash
+```
 
 ### As a program
 For calculation of rotation velocities, run `post [snapshot filename] [analysis result filename]`.
@@ -84,5 +84,5 @@ plt.ylabel(r"$V_c$ (km/s)")
 plt.legend()
 plt.show()
 
-```python
+```
 
