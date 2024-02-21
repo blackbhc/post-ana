@@ -15,7 +15,9 @@ The main concentration of this library is the disk galaxy simulations.
 ## Features
 - [x] Rotation curves: support total and partial rotation curves (rotation curve of particular components).
 - [x] CLI based parameters.
-- [ ] Parallel calculation (threading) to speed up the process.
+- [x] Parallel calculation (threading) to speed up the process.
+- [ ] Dynamic library for python.
+- [ ] Multiple snapshots.
 
 ## Installation
 1. Clone the repository into your local directory: `git clone https://github.com/blackbhc/post-ana.git`
