@@ -69,5 +69,14 @@ analyzer = single_snapshot(
 analyzer.cal_rc(r_max=30, r_bin_number=25, phi_bin_number=16)
 print(analyzer.fdisk) # calculate the disk fraction and print it
 
+# Plot the rotation curve
+plt.figure(figsize=(10, 8))
+for key in rotation_velocities.keys():
+    plt.plot(radius, rotation_velocities[key], label=key)
+plt.xlabel(r"$R$ (kpc)")
+plt.ylabel(r"$V_c$ (km/s)")
+plt.legend()
+plt.show()
+
 ```
 
