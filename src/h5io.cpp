@@ -45,7 +45,7 @@ void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinate
     partNums.resize( 50 );  // 50 is large enough for the number of particles
     for ( int i = 0; i < 50; i++ )
     {
-        partNums[ i ] = -1;
+        partNums[ i ] = 0;
     }
 
     hid_t header  = H5Gopen( this->simFile, "/Header", H5P_DEFAULT );

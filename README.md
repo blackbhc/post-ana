@@ -9,6 +9,7 @@ The main concentration of this library is the disk galaxy simulations.
     - `scons` for building: if you haven't installed `scons`, you can install it by `pip install scons`
     or `conda install scons`.
     - `numpy` for numerical calculation.
+    - `h5py` for reading and writing HDF5 files.
 - `make`
 - a `C++` compiler for compiling: support C++11 or later, such as `g++` or `clang++`.
 - `gsl` library for numerical calculation.
@@ -18,7 +19,7 @@ The main concentration of this library is the disk galaxy simulations.
 - [x] Rotation curves: support total and partial rotation curves (rotation curve of particular components).
 - [x] CLI based parameters.
 - [x] Parallel calculation (threading) to speed up the process.
-- [ ] Dynamic library for python.
+- [ ] Python wrapper for the library.
 - [ ] Multiple snapshots.
 
 ## Installation
@@ -48,5 +49,8 @@ The unit of the results is in `km/s` for velocity and `kpc` for radius, if the s
 unit system of `Gadget4` ($\rm{kpc}$, $\rm{Gyr}$, $1e10\ M_\odot$). Otherwise, the unit should be transformed
 correspondingly.
 
-### As a dynamic library (future)
+### As a python library
+The library is only a wrapper, which will call the program `post` to do the calculation. The python wrapper 
+also provides some function to read the result file.
 
+Basic example:
