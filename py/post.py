@@ -38,40 +38,64 @@ class single_snapshot:
         return self.radius, self.rotation_velocities
 
     @property
-    def cal_fdisk(self, Rd, disktypes):
+    def fdisk(self, disktypes=[2], Rd=None):
         """
         Calculate the disk mass fraction at  2.2*Rd.
         ----------------
         Arguments:
+        disktypes: list of int, the types of disk particles in the snapshot, default is [2].
         Rd: float, the scale length of the disk. Optional, if not provided, the function will treat the
         radius of maximum disk rotation velocity as 2.2*Rd.
-        disktypes: list of int, the types of disk particles in the snapshot.
         ----------------
         Return values:
         fdisk: float, the disk mass fraction at 2.2*Rd.
         """
         if not self.rc_calculated:
             raise ValueError("Rotation curve not calculated.")
-        if Rd is None:
-            Rc = __cal_vc_max(disktypes)[1]
-        else:
-            Rc = 2.2 * Rd
 
         fdisk = 0
+        # get all particle types
+        all_types = [keys[8:] for keys in self.rotation_velocities.keys()]
+        # [8:] is to remove the "PartType" prefix
+
+        vcs_all = self.__synthesize_rcs(all_types)
+        vcs_disk = self.__synthesize_rcs(disktypes)
+
+        if Rd is None:
+            Rc_id = np.argmax(vcs_disk)
+            fdisk = (vcs_disk[Rc_id] / vcs_all[Rc_id]) ** 2
+        else:
+            Rc = 2.2 * Rd
+            id_left = np.where(self.radius < Rc)[0][-1]
+            delta = Rc - self.radius[id_left]
+            # get the disk mass fraction around 2.2*Rd
+            fdisk1 = (vcs_disk[id_left] / vcs_all[id_left]) ** 2
+            fdisk2 = (vcs_disk[id_left + 1] / vcs_all[id_left + 1]) ** 2
+            # linear interpolation
+            fdisk = fdisk1 + (fdisk2 - fdisk1) * delta / (
+                self.radius[id_left + 1] - self.radius[id_left]
+            )
         return fdisk
 
-    def __cal_vc_max(self, types):
+    def __synthesize_rcs(self, types):
         """
-        Calculate and return the value and position of the maximum rotation velocity.
+        Synthesize the rotation velocities of different particle types.
         ----------------
         Arguments:
         types: list of int, the types of particles to be considered.
         ----------------
         Return values:
-        id: int, the index of the maximum rotation velocity.
-        vc_max: float, the maximum rotation velocity.
+        rcs: 1d numpy.ndarray, the synthesized rotation velocities.
         """
-        if not self.rc_calculated:
-            raise ValueError("Rotation curve not calculated.")
-        id = np.argmax(self.rotation_velocities["PartType" + str(types[0])])
-        return id, self.rotation_velocities["PartType" + str(types[0])][id]
+        rcs = []
+        # go through all given particle types
+        for type in types:
+            type = "PartType" + str(type)  # get the key name
+            if type not in self.rotation_velocities.keys():
+                raise ValueError(
+                    f"Disk type {type} not found in the rotation curve data."
+                )
+            rcs.append(self.rotation_velocities[type])
+        rcs = np.array(rcs)
+        rcs = np.sum(rcs**2, axis=0) ** 0.5
+        return rcs

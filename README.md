@@ -51,6 +51,23 @@ correspondingly.
 
 ### As a python library
 The library is only a wrapper, which will call the program `post` to do the calculation. The python wrapper 
-also provides some function to read the result file.
+also provides some function to read the result file. At know this time, the python wrapper is not complete, 
+so you need to add the path of the library before you import it.
 
 Basic example:
+```python
+import sys
+sys.path.append('/path/to/post-ana')
+from post import single_snapshot # at now, this is the only class you can use
+
+# create the object
+analyzer = single_snapshot(
+    "/path/to/snapshot.hdf5"
+)
+
+# calculate the rotation curve before you do anything else
+analyzer.cal_rc(r_max=30, r_bin_number=25, phi_bin_number=16)
+print(analyzer.fdisk) # calculate the disk fraction and print it
+
+```
+
