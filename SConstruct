@@ -23,7 +23,7 @@ flags = [
     "-Wall",
     "-Wextra",
     "-Wpedantic",
-    "-Werror",
+    # "-Werror",
     "-fPIC",
 ]
 
@@ -32,15 +32,15 @@ print("CPATH:", os.environ["CPATH"])
 Program(
     target="bin/post",
     source=srcs,
-    LIBS=["gsl", "gslcblas", "postana", "hdf5"],
+    LIBS=["gsl", "gslcblas", "post", "hdf5"],
     LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
     CPPPATH=["./src"] + CPATH,
     CXXFLAGS=flags,
 )
 
 SharedLibrary(
-    target="lib/libpostana.so",
-    source=srcs[1:],
+    target="lib/post",
+    source=srcs[1:] + ["src/c_wrapper.cpp"],
     LIBS=["gsl", "gslcblas", "hdf5"],
     LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
     CPPPATH=["./src"] + CPATH,

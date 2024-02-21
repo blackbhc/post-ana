@@ -11,9 +11,12 @@ class h5io
 {
 public:
     h5io( std::string sim_data, std::string analysis_data );
+    h5io( std::string sim_data );
     ~h5io();
     void read_datasets( vector< int >& partNums, vector< double* >& coordinates,
                         vector< double* >& masses );
+    void read_datasets( vector< int >& partNums, vector< double* >& coordinates,
+                        vector< double* >& masses, int* offset );
     void write_results( vector< double >& rs, vector< vector< double > >& rv );
 
 private:

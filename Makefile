@@ -16,12 +16,14 @@ test:
 
 clean:
 	@scons -c -Q
-	@rm -rf bin/ lib/ .sconsign.dblite
+	@rm -rf bin/ lib/ .sconsign.dblite py/__pycache__
 
 install: all
-	@cp bin/rc $(INSTALL_DIR)/bin/
-	@cp lib/libpostana.so $(INSTALL_DIR)/lib/
+	@cp bin/post $(INSTALL_DIR)/bin/
+	@cp -r py $(INSTALL_DIR)/lib/post_ana
+	@cp lib/libpost.so $(INSTALL_DIR)/lib/post_ana
+	@cp lib/libpost.so $(INSTALL_DIR)/lib/
 
 uninstall:
-	@rm -f $(INSTALL_DIR)/bin/rc
-	@rm -f $(INSTALL_DIR)/lib/ligpostana.so
+	@rm -f $(INSTALL_DIR)/bin/post
+	@rm -rf $(INSTALL_DIR)/lib/post_ana $(INSTALL_DIR)/lib/libpost.so

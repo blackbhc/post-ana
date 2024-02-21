@@ -12,10 +12,24 @@ h5io::h5io( std::string simFile, std::string anaResFile )
     this->anaResFile = H5Fcreate( anaResFile.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
 }
 
+h5io::h5io( std::string simFile )  // for reading datasets only
+{
+    this->simFile = H5Fopen( simFile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+}
+
 h5io::~h5io()
 {
     H5Fclose( this->simFile );
-    H5Fclose( this->anaResFile );
+    if ( this->anaResFile != -1 )
+        H5Fclose( this->anaResFile );
+}
+
+void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinates,
+                          vector< double* >& masses, int* offset )
+{
+    this->read_datasets( partNums, coordinates, masses );
+    *offset = this->parttype_offset;
+    // this function is used for the C++ wrapper to get the offset of the particle type
 }
 
 void h5io::read_datasets( vector< int >& partNums, vector< double* >& coordinates,

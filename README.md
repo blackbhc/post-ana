@@ -5,8 +5,10 @@ The main concentration of this library is the disk galaxy simulations.
 # Documentation
 
 ## Dependencies
-- `python` and `scons` for building: if you haven't installed `scons`, you can install it by `pip install scons`
-  or `conda install scons`.
+- `python3`:
+    - `scons` for building: if you haven't installed `scons`, you can install it by `pip install scons`
+    or `conda install scons`.
+    - `numpy` for numerical calculation.
 - `make`
 - a `C++` compiler for compiling: support C++11 or later, such as `g++` or `clang++`.
 - `gsl` library for numerical calculation.
@@ -23,8 +25,11 @@ The main concentration of this library is the disk galaxy simulations.
 1. Clone the repository into your local directory: `git clone https://github.com/blackbhc/post-ana.git`
 2. Change the directory to the repository: `cd post-ana`
 3. Edit the installation path at the third line of `Makefile`, default is `~/.local`.
-4. Build the library: `make`. If you encounter any error, run `make clean` before you run `make` again.
-5. Install the library: `make install`
+4. Edit the installation path at the third line of `Makefile`, default is `~/.local`.
+5. Build the library: `make`. If you encounter any error, run `make clean` before you run `make` again.
+(Edit the first line of `src/python.cpp`, if you encounter compiling error `Python.h not found`. The exact 
+position of `Python.h` can be found by command `python3-config --includes`.)
+6. Install the library: `make install`
 
 Uninstall: `make uninstall`
 

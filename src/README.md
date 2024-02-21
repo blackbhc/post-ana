@@ -4,3 +4,4 @@ Illustration of source files:
 - `aligner.cpp`: Recenter the system to the center of mass, and align the possible bar to the $x$-axis in the $xy$-plane.
 - `galaxy.cpp`: Main Class to simulate the galaxy.
 - `h5io.cpp`: Read and write HDF5 files.
+- `c_wrapper.cpp`: c wrapper, aimed to be called by python.
