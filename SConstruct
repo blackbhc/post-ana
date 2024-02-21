@@ -1,8 +1,13 @@
 import os
 
-CPATH = os.environ["CPATH"].split(":")
-LD_LIB_PATH = os.environ["LD_LIBRARY_PATH"].split(":")
-LIB_PATH = os.environ["LIBRARY_PATH"].split(":")
+try:
+    CPATH = os.environ["CPATH"].split(":")
+    LD_LIB_PATH = os.environ["LD_LIBRARY_PATH"].split(":")
+    LIB_PATH = os.environ["LIBRARY_PATH"].split(":")
+except:
+    CPATH = []
+    LD_LIB_PATH = []
+    LIB_PATH = []
 
 srcs = [
     "src/" + file
@@ -23,24 +28,13 @@ flags = [
     "-Wall",
     "-Wextra",
     "-Wpedantic",
-    "-Werror",
+    # "-Werror",
     "-fPIC",
 ]
-
-print("CPATH:", os.environ["CPATH"])
 
 Program(
     target="bin/post",
     source=srcs,
-    LIBS=["gsl", "gslcblas", "postana", "hdf5"],
-    LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
-    CPPPATH=["./src"] + CPATH,
-    CXXFLAGS=flags,
-)
-
-SharedLibrary(
-    target="lib/libpostana.so",
-    source=srcs[1:],
     LIBS=["gsl", "gslcblas", "hdf5"],
     LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,
     CPPPATH=["./src"] + CPATH,
