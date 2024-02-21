@@ -17,7 +17,7 @@ srcs = [
 ]
 
 flags = [
-    "-std=c++20",
+    "-std=c++11",
     # "-ggdb",
     "-O3",
     "-Wall",
@@ -30,7 +30,7 @@ flags = [
 print("CPATH:", os.environ["CPATH"])
 
 Program(
-    target="bin/rc",
+    target="bin/post",
     source=srcs,
     LIBS=["gsl", "gslcblas", "postana", "hdf5"],
     LIBPATH=["./lib"] + LIB_PATH + LD_LIB_PATH,

@@ -13,9 +13,13 @@ using std::vector;
 
 int main( int argc, char* argv[] )
 {
-    if ( argc != 3 )
+    if ( argc != 3 && argc != 6 )
     {
-        printf( "Usage: %s [simulation filename] [log filename]\n", argv[ 0 ] );
+        printf( "Usage: %s [simulation filename] [log filename] [optional parameters]\n",
+                argv[ 0 ] );
+        printf( "Optional parameters are: [max radius] [radius bin number] [azimuthal bin "
+                "number]\n" );
+        printf( "Optional parameters can be omitted or be given simutaneously.\n" );
         return 1;
     }
 
@@ -25,6 +29,16 @@ int main( int argc, char* argv[] )
     // post_ana::h5io* io = new post_ana::h5io(
     //     "/home/bhchen/FeGradient/Simulation/hr_sigma150/snapshot_000.hdf5", "./test/test.hdf5" );
     post_ana::h5io* io = new post_ana::h5io( argv[ 1 ], argv[ 2 ] );
+
+    double Rmax      = 30;  // the maximum radius to calculate the rotation curve
+    int    rBinNum   = 30;  // the number of bins in the radius direction
+    int    phiBinNum = 16;  // the number of bins in the azimuthal direction
+    if ( argc == 6 )        // if the user specifies the maximum radius
+    {
+        Rmax      = std::stod( argv[ 3 ] );
+        rBinNum   = std::stoi( argv[ 4 ] );
+        phiBinNum = std::stoi( argv[ 5 ] );
+    }
 
     vector< int >     partNums;
     vector< double* > coordinates;
@@ -40,7 +54,7 @@ int main( int argc, char* argv[] )
 
     printf( "Calculating the rotation curve ...\n" );
     post_ana::galaxy* galaxy = new post_ana::galaxy( coordinates, masses, partNums );
-    galaxy->cal_rc( 0.1, 30, 30, 16 );
+    galaxy->cal_rc( 0.1, Rmax, rBinNum, phiBinNum );
     auto rs  = galaxy->get_rs();
     auto rvs = galaxy->get_rvs();
     printf( "Logging into the file: %s ...\n", argv[ 2 ] );
