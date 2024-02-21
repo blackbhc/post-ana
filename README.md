@@ -19,7 +19,7 @@ The main concentration of this library is the disk galaxy simulations.
 - [x] Rotation curves: support total and partial rotation curves (rotation curve of particular components).
 - [x] CLI based parameters.
 - [x] Parallel calculation (threading) to speed up the process.
-- [ ] Python wrapper for the library.
+- [x] Python wrapper for the library.
 - [ ] Multiple snapshots.
 
 ## Installation
