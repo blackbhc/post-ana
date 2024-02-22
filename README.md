@@ -77,18 +77,19 @@ correspondingly.
 ### As a python library
 The library is only a wrapper, which will call the program `post` to do the calculation. The python wrapper 
 also provides some function to read the result file. At know this time, the python wrapper is not complete, 
-so you need to add the path of the library before you import it.
+so you need to add the path of the library before you import it. See the example below.
 
 Basic example:
 ```python
 import sys
-sys.path.append('/path/to/post-ana')
+sys.path.append('/path/to/post-ana') # modify the path to the install path
 from post import single_snapshot # at now, this is the only class you can use
+import os
+os.environ["PATH"]+="path/to/install/bin" # modify the path to the install path
+os.environ["LD_LIBRARY_PATH"]="/path/to/gsl/lib:/path/to/hdf5/lib" # modify the path to the gsl and hdf5 library
 
 # create the object
-analyzer = single_snapshot(
-    "/path/to/snapshot.hdf5"
-)
+analyzer = single_snapshot("/home/bhchen/FeGradient/Simulation/hr_sigma150/output/snapshot_000.hdf5")
 
 # calculate the rotation curve before you do anything else
 analyzer.cal_rc(r_max=30, r_bin_number=25, phi_bin_number=16)
@@ -96,8 +97,8 @@ print(analyzer.fdisk) # calculate the disk fraction and print it
 
 # Plot the rotation curve
 plt.figure(figsize=(10, 8))
-for key in rotation_velocities.keys():
-    plt.plot(radius, rotation_velocities[key], label=key)
+for key in analyzer.rotation_velocities.keys():
+    plt.plot(analyzer.radius, analyzer.rotation_velocities[key], label=key)
 plt.xlabel(r"$R$ (kpc)")
 plt.ylabel(r"$V_c$ (km/s)")
 plt.legend()

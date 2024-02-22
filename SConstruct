@@ -1,4 +1,5 @@
 import os
+from SCons.Script import Program
 
 try:
     CPATH = os.environ["CPATH"].split(":")
